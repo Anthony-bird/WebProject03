@@ -1,4 +1,4 @@
-package org.feng.framework;
+package org.feng.framework.aop;
 
 public class HelloProxy implements Hello {
 

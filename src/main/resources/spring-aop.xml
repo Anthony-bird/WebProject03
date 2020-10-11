@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                         http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--扫描指定包(将带有 Component 注解的类自定义为Spring Bean)-->
+    <context:component-scan base-package="aop.demo"/>
+
+    <!--配置一个切面-->
+    <bean id="greetingAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <propery name="advice" ref="greetingAroundAdvice"/><!--增强-->
+        <propery name="pattern" value="aop.demo.GreetingImpl.good.*"/><!--切点-->
+    </bean>
+    <!-- 配置一个代理 -->
+    <bean id="greentingProxy" class="org.springframework.aop.framework.proxyFactoryBean">
+       <!-- <propery name="interfaces" value="aop.Greeting"/>--> <!--需要代理的接口-->
+        <propery name="interfaces" value="aop.demo.Apology"/> <!--需要动态实现的接口-->
+
+        <propery name="target" ref="greetingImpl"/><!--接口实现类-->
+        <!--<propery name="interceptorNames" value="greetingAroundAdvice"/>-->   <!--拦截器名称(也是增强类名称 Spring Bean 的id)-->
+
+        <!--<propery name="interceptorNames" value="greetingIntroAdvice"/>&lt;!&ndash;引入增强&ndash;&gt;-->
+        <propery name="interceptorNames" value="greetingAdvisor"/><!--切面-->
+        <propery name="proxyTargetClass" value="true"/>  <!--代理目标类(默认为false,代理接口)-->
+
+    </bean>
+
+   <!-- <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+        <propery name="beanNames" value="*Impl"/>&lt;!&ndash;只为后缀是“Impl”的Bean生成代理&ndash;&gt;
+        <propery name="interceptorNames" value="greetingAroundAdvice"/>&lt;!&ndash;增强&ndash;&gt;
+        <propery name="optimize" value="true"/> &lt;!&ndash;是否对代理生成策略进行优化&ndash;&gt;
+    </bean>-->
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+        <propery name="optimize" value="true"/> <!--是否对代理生成策略进行优化-->
+    </bean>
+</beans>
