@@ -2,6 +2,7 @@ package org.feng.framework.aop;
 
 @Component
 public class GreetingImpl implements Greeting {
+    @Tag
     public void sayHello(String name) {
         System.out.println("Hello!" +name);
 

@@ -39,6 +39,11 @@ public class Client {
         Apology apology = (Apology) greetingImpl;//将目标类强制向上转型为Apology接口(这是引入增强给我们带来的特性,也就是"接口动态实现"功能)
         apology.saySorry("Jack");
 
+        ApplicationContext context2 = new ClassPathXmlApplicationContext("main/resources/spring-aop.xml");//获取Spring Context
+        Greeting greeting = (Greeting) context.getBean("greetingImpl");
+        greeting.sayHello("Jack");
 
+        Apology apology2 = (Apology) greetingImpl;//将目标类强制向上转型为Apology接口
+        apology2.saySorry("Jack");
     }
 }
