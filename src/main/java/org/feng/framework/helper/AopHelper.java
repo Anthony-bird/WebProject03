@@ -3,11 +3,33 @@ package org.feng.framework.helper;
 import org.feng.framework.annotation.Aspect;
 import org.feng.framework.proxy.AspectProxy;
 import org.feng.framework.proxy.Proxy;
+import org.feng.framework.proxy.ProxyManager;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.logging.Logger;
 
+/*
+* 方法拦截助手类
+* */
 public final class AopHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AopHelper.class);
+
+
+    static {
+        try {
+            Map<Class<?>, Set<Class<?>>> proxyMap = createProxyMap();
+            Map<Class<?>, List<Proxy>> targetMap = createTargetMap(proxyMap);
+            for (Map.Entry<Class<?>, List<Proxy>> targetEntry : targetMap.entrySet()) {
+                Class<?> targetClass = targetEntry.getKey();
+                List<Proxy> proxyList = targetEntry.getValue();
+                Object proxy = ProxyManager.createProxy(targetClass, proxyList);
+                BeanHelper.setBean(targetClass,proxy);
+            }
+        } catch (Exception e) {
+            Logger.error("aop failure",e);
+        }
+    }
     private static Set<Class<?>> createTargetClassSet(Aspect aspect)throws Exception{
         Set<Class<?>> targetClassSet = new HashSet<Class<?>>();
         Class<? extends Annotation> annotation = aspect.value();
@@ -33,9 +55,19 @@ public final class AopHelper {
     private static Map<Class<?>, List<Proxy>> createTargetMap(Map<Class<?>,Set<Class<?>>> proxyMap) throws Exception{
         Map<Class<?>, List<Proxy>> targetMap = new HashMap<Class<?>,List<Proxy>>();
         for (Map.Entry<Class<?>, Set<Class<?>>> proxyEntry : proxyMap.entrySet()) {
-
-         }
+            Class<?> proxyClass = proxyEntry.getKey();
+            Set<Class<?>> targetClassSet = proxyEntry.getValue();
+            for (Class<?> targetClass : targetClassSet) {
+                Proxy proxy = (Proxy) proxyClass.newInstance();
+                if (targetMap.containsKey(targetClass)) {
+                    targetMap.get(targetClass).add(proxy);
+                } else {
+                    ArrayList<Proxy> proxyList = new ArrayList<Proxy>();
+                    proxyList.add(proxy);
+                    targetMap.put(targetClass,proxyList);
+                }
+            }
         }
-        return proxyMap;
+        return targetMap;
     }
 }
