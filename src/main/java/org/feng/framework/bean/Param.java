@@ -1,5 +1,7 @@
 package org.feng.framework.bean;
 
+import net.sf.cglib.core.CollectionUtils;
+
 import java.util.Map;
 
 /*
@@ -23,5 +25,9 @@ public class Param {
     * */
     public Map<String,Object> getMap(){
         return paramMap;
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtil.isEmpty(paramMap);
     }
 }

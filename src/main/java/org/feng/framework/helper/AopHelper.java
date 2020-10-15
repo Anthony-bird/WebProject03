@@ -1,9 +1,12 @@
 package org.feng.framework.helper;
 
 import org.feng.framework.annotation.Aspect;
+import org.feng.framework.annotation.Service;
+import org.feng.framework.annotation.Transaction;
 import org.feng.framework.proxy.AspectProxy;
 import org.feng.framework.proxy.Proxy;
 import org.feng.framework.proxy.ProxyManager;
+import org.feng.framework.proxy.TransactionProxy;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -41,6 +44,27 @@ public final class AopHelper {
 
     private static Map<Class<?>,Set<Class<?>>> createProxyMap() throws Exception{
         Map<Class<?>, Set<Class<?>>> proxyMap = new HashMap<Class<?>, Set<Class<?>>>();
+//        Set<Class<?>> proxyClassSet = ClassHelper.getClassSetBySuper(AspectProxy.class);
+//        for (Class<?> proxyClass : proxyClassSet) {
+//            if (proxyClass.isAnnotationPresent(Aspect.class)) {
+//                Aspect aspect = proxyClass.getAnnotation(Aspect.class);
+//                Set<Class<?>> targetClassSet = createTargetClassSet(aspect);
+//                proxyMap.put(proxyClass,targetClassSet);
+//            }
+//        }
+        addAspectProxy(proxyMap);
+        addTransactionProxy(proxyMap);
+        
+        return proxyMap;
+    }
+
+    private static void addTransactionProxy(Map<Class<?>, Set<Class<?>>> proxyMap) {
+        Set<Class<?>> serviceClassSet = ClassHelper.getClassSetByAnnotation(Service.class);
+        proxyMap.put(TransactionProxy.class,serviceClassSet);
+
+    }
+
+    private static void addAspectProxy(Map<Class<?>, Set<Class<?>>> proxyMap) throws Exception {
         Set<Class<?>> proxyClassSet = ClassHelper.getClassSetBySuper(AspectProxy.class);
         for (Class<?> proxyClass : proxyClassSet) {
             if (proxyClass.isAnnotationPresent(Aspect.class)) {
@@ -49,7 +73,6 @@ public final class AopHelper {
                 proxyMap.put(proxyClass,targetClassSet);
             }
         }
-        return proxyMap;
     }
 
     private static Map<Class<?>, List<Proxy>> createTargetMap(Map<Class<?>,Set<Class<?>>> proxyMap) throws Exception{
